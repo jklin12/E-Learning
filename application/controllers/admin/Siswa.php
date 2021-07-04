@@ -174,9 +174,25 @@ class Siswa extends CI_Controller
         $insert2 = $this->db->insert('t_user', $userData);
 
         if ($insert1 && $insert2) {
-            redirect(base_url("index.php/admin/sisswa/"));
+            redirect(base_url("index.php/admin/siswa/"));
         } else {
             echo 'gagal';
         }
     }
+
+    public function doDelete($nip)
+    {
+        $this->db->where('nis', $nip);
+        $delete1 = $this->db->delete('t_siswa');
+
+        $this->db->where('siswa_id', $nip);
+        $delete2 = $this->db->delete('t_user');
+
+        if ($delete1 && $delete2) {
+            redirect(base_url("index.php/admin/siswa/"));
+        } else {
+            echo 'gagal';
+        }
+    }
+
 }

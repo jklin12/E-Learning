@@ -25,7 +25,7 @@
 
             <hr class="hr-top">
             <div class="wrap-content">
-                <div class="content">
+                <div class="content" style="height: 800px;">
                     <p><?php echo $data["judul"]; ?></p>
                     <p><?php echo $data["materi"];  ?>
                     </p>
@@ -89,7 +89,7 @@
                 <h1 class="title"><?php echo $data["judul_tugas"]; ?></h1>
                 <hr class="hr-top">
                 <div class="wrap-content">
-                    <div class="content">
+                    <div class="content" style="height: 800px;">
                         <p><?php echo $data["deskripsi"]; ?></p>
                         <p><?php echo $data["tugas"]; ?></p>
                         </p>

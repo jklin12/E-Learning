@@ -13,7 +13,7 @@
 				<?php $this->load->view('template/sidenav.php') ?>
 				<!--/.span3-->
 				<div class="span9 mobile-12">
-					<div class="content">
+					<div class="content" style="height: 800px;">
 						<div class="panel panel-default">
 							<div class="panel-heading"> <strong>Pertemuan <?php echo $mapel?></strong>
 							</div>
