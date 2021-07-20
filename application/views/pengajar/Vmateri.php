@@ -18,6 +18,10 @@
                             <li><a href="<?php echo base_url('index.php/pengajar/Ipengajar') ?>"><i class="menu-icon icon-home"></i>Beranda</a></li>
                             <li><a href="<?php echo base_url() ?>index.php/message"><i class="menu-icon icon-comments"></i>Pesan <span class="menu-count-new-msg"></span></a></li>
                             <li><a href="<?php echo base_url("/index.php/pengajar/JadwalMengajar") ?>"><i class="menu-icon icon-tasks"></i>Jadwal Menagajar</a></li>
+                            <li>
+                                <a href="<?php echo base_url("/index.php/pengajar/tugas") ?>">
+                                    <i class="menu-icon icon-tasks"></i>Tugas</a>
+                            </li>
                         </ul>
                     </div>
                     <!--/.sidebar-->
@@ -33,7 +37,7 @@
                             <div class="panel-body">
                                 <div class="bs-callout bs-callout-info">
                                     <div class="btn-group pull-right" style="margin-top:-5px;">
-                                        <a href="<?php echo base_url('index.php/pengajar/JadwalMengajar/addMateri?idjadwal='.$id_jadwal.'&idmapel='.$id_mapel) ?>" class="btn btn-primary">Tambah Materi </a>
+                                        <a href="<?php echo base_url('index.php/pengajar/JadwalMengajar/addMateri?idjadwal=' . $id_jadwal . '&idmapel=' . $id_mapel) ?>" class="btn btn-primary">Tambah Materi </a>
 
                                     </div>
                                 </div>
@@ -51,7 +55,7 @@
                                     <tbody>
 
                                         <?php $i = 1;
-                                         foreach ($data as $dt) { ?>
+                                        foreach ($data as $dt) { ?>
                                             <tr>
                                                 <td><b><?php echo $i++ ?></b></td>
                                                 <td>
@@ -86,7 +90,7 @@
                                                         <a href="<?php echo base_url('index.php/pengajar/JadwalMengajar/addMateri') ?>" class="btn btn-default btn-small"><i class="icon-edit"></i> Edit</a>
 
                                                         <a href="<?php echo base_url('index.php/pengajar/JadwalMengajar/deleteMateri/' .
-                                                                        $dt["id_materi"] ) ?>" class="btn btn-default btn-small" onclick="return confirm('Anda yakin ingin menghapus?')"><i class="icon-trash"></i> Hapus</a>
+                                                                        $dt["id_materi"]) ?>" class="btn btn-default btn-small" onclick="return confirm('Anda yakin ingin menghapus?')"><i class="icon-trash"></i> Hapus</a>
                                                     </div>
                                                 </td>
                                             </tr>

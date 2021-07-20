@@ -1,5 +1,6 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+date_default_timezone_set("Asia/Bangkok");
 
 class Jadwalmapel extends CI_Controller
 {
@@ -56,28 +57,19 @@ class Jadwalmapel extends CI_Controller
         $minweek = date('Y-m-d H:i:s', strtotime('-1 week'));
         $query = $this->db->query("SELECT t_materi.id_materi,t_materi.id_jadwal,t_materi.id_mapel,t_materi.id_kelas,t_materi.nip,t_materi.judul,t_materi.deskripsi,t_materi.materi,t_materi.tgl_upload,t_mapel.nama_mapel,t_jadwal.hari,t_jadwal.jam_mulai,t_jadwal.jam_selesai,t_kelas.nama_kelas,t_pengajar.nama,t_tugas.id_tugas,t_tugas.judul_tugas,t_tugas.tugas FROM `t_materi` LEFT JOIN t_mapel on t_materi.id_mapel = t_mapel.id_mapel left join t_jadwal on t_materi.id_jadwal = t_jadwal.id_jadwal left join t_kelas on t_materi.id_kelas = t_kelas.id_kelas left join t_pengajar on t_materi.nip = t_pengajar.nip left join t_tugas on t_materi.id_materi = t_tugas.id_materi where  t_materi.id_mapel = '" . $idmapel . "' AND t_materi.id_kelas = '" . $kelas . "' AND (t_materi.tgl_upload BETWEEN  '" . $minweek . "' AND '" . $now . "')");
         $result = $query->row_array();
-        //print_r($result);
-        //die();
-        if(isset($result)){
+
+        if (isset($result)) {
             $materi = "ya";
-        }else{
-           $materi = "tidak";
+            $data["data"] = $result;
+
+            $idmateri = $result["id_materi"];
+            $cektugas = $this->db->query("SELECT * FROM `t_tugas_kirim` where id_materi = '" . $idmateri . "' and id_siswa = '" . $nis . "' ")->row_array();
+            $data["tugas"] = $cektugas;
+        } else {
+            $materi = "tidak";
         }
         $data["has_materi"] = $materi;
-        $data["data"] = $result;
-
-        $idmateri = $result["id_materi"];
-        $cektugas = $this->db->query("SELECT * FROM `t_tugas_kirim` where id_materi = '" . $idmateri . "' and id_siswa = '" . $nis . "' ")->row_array();
-
-        $data["tugas"] = $cektugas;
-
-        $cekabsen =  $this->mMateri->getAbsesnin($result["id_materi"], $nis)->row_array();
-
-        if (isset($cekabsen)) {
-            $data["absen"] = '1';
-        } else {
-            $data["absen"] = '0';
-        }
+  
 
         $this->load->view('siswa/Vpelajaran', $data);
     }

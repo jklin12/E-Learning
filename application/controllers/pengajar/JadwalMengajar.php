@@ -45,16 +45,21 @@ class JadwalMengajar extends CI_Controller
 
         //$idmapel = $this->encryption->decrypt($rawid);
         $this->session->set_userdata("mapelId", $id);
+        $nip = $this->session->userdata("nip");
 
-        $query = $this->db->query("SELECT * FROM `t_materi` LEFT JOIN t_jadwal on t_materi.id_jadwal = t_jadwal.id_jadwal LEFT JOIN t_pengajar on   t_jadwal.nip = t_pengajar.nip left join t_kelas on t_materi.id_kelas =  t_kelas.id_kelas left join t_mapel on t_materi.id_mapel = t_mapel.id_mapel WHERE t_materi.id_mapel = '" . $id . "'");
+        $query = $this->db->query("SELECT * FROM `t_jadwal` LEFT JOIN t_materi on t_jadwal.id_jadwal = t_materi.id_jadwal LEFT JOIN t_pengajar on   t_jadwal.nip = t_pengajar.nip LEFT join t_kelas on t_jadwal.id_kelas =  t_kelas.id_kelas LEFT join t_mapel on t_jadwal.id_mapel = t_mapel.id_mapel WHERE t_jadwal.id_mapel = '" . $id . "' AND t_jadwal.nip = '" . $nip . "'");
+
         $row = $query->row_array();
-        $result = $query->result_array();
-        //print_r($result);
-        //die();
 
-        $data["judul"] = $row["nama_mapel"];
-        $data["id_jadwal"] = $row["id_jadwal"];
-        $data["id_mapel"] = $row["id_mapel"];
+        $query2 = $this->db->query("SELECT * FROM `t_materi` LEFT JOIN t_jadwal on t_materi.id_jadwal = t_materi.id_jadwal LEFT join t_mapel on t_materi.id_mapel = t_mapel.id_mapel  LEFT join t_kelas on t_materi.id_kelas =  t_kelas.id_kelas WHERE t_materi.id_mapel = '" . $id . "' AND t_materi.nip = '" . $nip . "' AND t_jadwal.nip = '" . $nip . "'");
+        $result = $query2->result_array();
+
+        if (isset($row)) {
+
+            $data["judul"] = $row["nama_mapel"];
+            $data["id_jadwal"] = $row["id_jadwal"];
+            $data["id_mapel"] = $row["id_mapel"];
+        }
         $data["data"] = $result;
 
         $this->load->view('pengajar/Vmateri', $data);
@@ -64,7 +69,7 @@ class JadwalMengajar extends CI_Controller
         $kelas = $this->mMateri->getKelas()->result_array();
         $data["kelas"] = $kelas;
         $data["id_jadwal"] = $this->input->get('idjadwal');
-        $query = $this->db->query("SELECT * FROM `t_mapel` WHERE id_mapel = '".$this->input->get('idmapel')."'");
+        $query = $this->db->query("SELECT * FROM `t_mapel` WHERE id_mapel = '" . $this->input->get('idmapel') . "'");
         $result = $query->row_array();
         $data["id_mapel"] = $result["id_mapel"];
         $data["nama_mapel"] = $result["nama_mapel"];
@@ -76,7 +81,7 @@ class JadwalMengajar extends CI_Controller
     {
         //echo $this->input->post('have_tugas');
         $nip = $this->session->userdata("nip");
-        
+
         $rawid = $this->session->userdata('mapelId');
 
         $config['upload_path']          = 'userfiles/uploads';
@@ -100,42 +105,52 @@ class JadwalMengajar extends CI_Controller
 
         $this->load->library('upload', $config);
 
+
+
+
         //baru
 
         if ($tugas == '0') {
             if ($this->form_validation->run() == FALSE) {
-                $this->load->view('pengajar/Vaddmateri', $data);
+                $this->load->view('pengajar/Vaddmateri');
             } else {
-                $umateri = $this->do_upload('userfile');
-                $materiname = $umateri["upload_data"]["file_name"];
-                if($umateri["upload_data"]["file_ext"] == ".mp4"){
-                    $materi = '<video width="800" controls>
-                    <source src="'.base_url('userfiles/uploads/' . $materiname).'" type="video/mp4">
-                    Your browser does not support HTML video.
-                    </video>';
-                }else{
-                    $materi = '<img src="'.base_url('userfiles/uploads/' . $materiname).'" >';
-                }
-                //print_r($umateri);
-                //die();
-                foreach ($kelasid as $id) {
-                    $data = array(
-                        "id_mapel" => $mapelid,
-                        "id_jadwal" => $idjadwal,
-                        "id_kelas" => $id,
-                        "nip" => $nip,
-                        "judul" => $judul,
-                        "deskripsi" => $deskripsi,
-                        "tugas" => "tidak",
-                        "materi" => $materi,
-                        "tgl_upload" => date("Y-m-d H:i:s"),
-                    );
-                    $inseert = $this->mMateri->addMateri($data);
-                    $err = $this->db->error();
-                    if ($err["code"] == 0) {
-                        redirect("pengajar/JadwalMengajar/materi/" . $rawid);
+                if (!$this->upload->do_upload('userfile')) {
+                    $error = array('error' => $this->upload->display_errors());
+                    print_r($error);
+                } else {
+                    $data = array('upload_data' => $this->upload->data());
+                    $umateri = $this->do_upload('userfile');
+                    $materiname = $umateri["upload_data"]["file_name"];
+
+                    if ($umateri["upload_data"]["file_ext"] == ".mp4") {
+                        $materi = '<video width="800" controls>
+                        <source src="' . base_url('userfiles/uploads/' . $materiname) . '" type="video/mp4">
+                        Your browser does not support HTML video.
+                        </video>';
                     } else {
-                        print_r($err);
+                        $materi = '<img width="500px" src="' . base_url('userfiles/uploads/' . $materiname) . '" >';
+                    }
+                    //print_r($umateri);
+                    //die();
+                    foreach ($kelasid as $id) {
+                        $data = array(
+                            "id_mapel" => $mapelid,
+                            "id_jadwal" => $idjadwal,
+                            "id_kelas" => $id,
+                            "nip" => $nip,
+                            "judul" => $judul,
+                            "deskripsi" => $deskripsi,
+                            "tugas" => "tidak",
+                            "materi" => $materi,
+                            "tgl_upload" => date("Y-m-d H:i:s"),
+                        );
+                        $inseert = $this->mMateri->addMateri($data);
+                        $err = $this->db->error();
+                        if ($err["code"] == 0) {
+                            redirect("pengajar/JadwalMengajar/materi/" . $rawid);
+                        } else {
+                            print_r($err);
+                        }
                     }
                 }
             }
@@ -143,28 +158,28 @@ class JadwalMengajar extends CI_Controller
             $judultugas = $this->input->post("judul_tugas");
             $deskripsitugas = $this->input->post('deskripsi_tugas');
             if ($this->form_validation->run() == FALSE) {
-                $this->load->view('pengajar/Vaddmateri', $data);
+                $this->load->view('pengajar/Vaddmateri');
             } else {
                 $umateri = $this->do_upload('userfile');
                 $materiname = $umateri["upload_data"]["file_name"];
-                if($umateri["upload_data"]["file_ext"] == ".mp4"){
+                if ($umateri["upload_data"]["file_ext"] == ".mp4") {
                     $materi = '<video width="800" controls>
-                    <source src="'.base_url('userfiles/uploads/' . $materiname).'" type="video/mp4">
+                    <source src="' . base_url('userfiles/uploads/' . $materiname) . '" type="video/mp4">
                     Your browser does not support HTML video.
                     </video>';
-                }else{
-                    $materi = '<img src="'.base_url('userfiles/uploads/' . $materiname).'" >';
+                } else {
+                    $materi = '<img src="' . base_url('userfiles/uploads/' . $materiname) . '" >';
                 }
 
                 $utugas = $this->do_upload('userfile_tugas');
                 $tugasname = $utugas["upload_data"]["file_name"];
-                if($utugas["upload_data"]["file_ext"] == ".mp4"){
+                if ($utugas["upload_data"]["file_ext"] == ".mp4") {
                     $filetugas = '<video width="800" controls>
-                    <source src="'.base_url('userfiles/uploads/' . $tugasname).'" type="video/mp4">
+                    <source src="' . base_url('userfiles/uploads/' . $tugasname) . '" type="video/mp4">
                     Your browser does not support HTML video.
                     </video>';
-                }else{
-                    $filetugas = '<img src="'.base_url('userfiles/uploads/' . $tugasname).'" >';
+                } else {
+                    $filetugas = '<img src="' . base_url('userfiles/uploads/' . $tugasname) . '" >';
                 }
                 foreach ($kelasid as $id) {
                     $datamateri = array(
@@ -174,7 +189,7 @@ class JadwalMengajar extends CI_Controller
                         "nip" => $nip,
                         "judul" => $judul,
                         "deskripsi" => $deskripsi,
-                        "tugas" => "tidak",
+                        "tugas" => "ya",
                         "materi" => $materi,
                         "tgl_upload" => date("Y-m-d H:i:s"),
                     );
@@ -286,7 +301,8 @@ class JadwalMengajar extends CI_Controller
         redirect('pengajar/JadwalMengajar/materi/' . $rawid);
     }
 
-    function detailmateri(){
+    function detailmateri()
+    {
         $idmateri = $this->input->get('idmateri');
 
         $query = $this->db->query("SELECT t_materi.id_materi,t_materi.id_jadwal,t_materi.id_mapel,t_materi.id_kelas,t_materi.nip,t_materi.judul,t_materi.deskripsi,t_materi.materi,t_materi.tgl_upload,t_mapel.nama_mapel,t_jadwal.hari,t_jadwal.jam_mulai,t_jadwal.jam_selesai,t_kelas.nama_kelas,t_pengajar.nama,t_tugas.id_tugas,t_tugas.judul_tugas,t_tugas.tugas FROM `t_materi` LEFT JOIN t_mapel on t_materi.id_mapel = t_mapel.id_mapel left join t_jadwal on t_materi.id_jadwal = t_jadwal.id_jadwal left join t_kelas on t_materi.id_kelas = t_kelas.id_kelas left join t_pengajar on t_materi.nip = t_pengajar.nip left join t_tugas on t_materi.id_materi = t_tugas.id_materi where  t_materi.id_materi = '" . $idmateri . "' ");
@@ -295,6 +311,4 @@ class JadwalMengajar extends CI_Controller
         $data["data"] = $result;
         $this->load->view('pengajar/Vdetailmateri', $data);
     }
-
-
 }

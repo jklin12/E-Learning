@@ -21,7 +21,7 @@ class Tugas extends CI_Controller
         //print_r($cektugas);
         //die();
         $data["tugas"] = $cektugas;
-        $this->load->view('siswa/Vtugas',$data);
+        $this->load->view('siswa/Vtugas', $data);
     }
 
     public function kirimTugas()
